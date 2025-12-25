@@ -1,218 +1,157 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
-interface Command {
-  input: string;
-  output: string[];
-  delay?: number;
-}
+type Line = { type: "input" | "output"; text: string; link?: string };
+type CommandOutput = string | { text: string; link: string };
 
-const commands: Command[] = [
-  {
-    input: "whoami",
-    output: [
-      "Quentin Broyer Cloud & DevOps Administrator",
-      ""
-    ],
-    delay: 500,
-  },
-  {
-    input: "cat profile.txt",
-    output: [
-      "Name: Quentin Broyer",
-      "Jobs: Cloud & DevOps Engineer",
-      "Spécialisé en infrastructure cloud,",
-      "CI/CD, Kubernetes, ElasticSearch",
-      "Helm, Terraform, Python",
-      ""
-    ],
-    delay: 1000,
-  },
-  {
-    input: "ls -la skills/",
-    output: [
-      "drwxr-xr-x  cloud-platforms/",
-      "drwxr-xr-x  devops-tools/",
-      "drwxr-xr-x  infrastructure/",
-      "drwxr-xr-x  monitoring/",
-      ""
-    ],
-    delay: 800,
-  },
-  {
-    input: "echo $STATUS",
-    output: [
-      "✓ Disponible pour de nouveaux projets",
-      ""
-    ],
-    delay: 600,
-  },
+const commands: Record<string, CommandOutput[]> = {
+  help: [
+    "Available commands:",
+    "  whoami      - Who am I?",
+    "  skills      - My technical skills",
+    "  projects    - My projects",
+    "  contact     - Contact information",
+    "  clear       - Clear terminal",
+  ],
+  whoami: ["Quentin Broyer — Cloud & DevOps Engineer"],
+  skills: [
+    "Cloud:      AWS, Azure, GCP, OVH",
+    "DevOps:     Docker, Kubernetes, GitLab CI, ArgoCD",
+    "IaC:        Terraform, Ansible, Pulumi",
+    "Monitoring: Prometheus, Grafana, ELK Stack",
+  ],
+  projects: [
+    "1. Multi-Cloud Infrastructure - Terraform, AWS, Azure, GCP",
+    "2. CI/CD Pipeline - GitLab CI, Docker, Kubernetes",
+    "3. Cloud Migration - Zero-downtime migration",
+    "4. K8s Production Cluster - Helm, Istio, Prometheus",
+  ],
+  contact: [
+    { text: "Email:    quentin.broyer@exemple.com", link: "mailto:quentin.broyer@exemple.com" },
+    { text: "GitHub:   github.com/quentinbroyer", link: "https://github.com/quentinbroyer" },
+    { text: "LinkedIn: linkedin.com/in/quentinbroyer", link: "https://linkedin.com/in/quentinbroyer" },
+  ],
+};
+
+const initialLines: Line[] = [
+  { type: "output", text: "Welcome to my portfolio. Type 'help' for commands." },
 ];
 
-{/* Writeting in terminal */}
-const TYPING_SPEED_MIN = 50;
-const TYPING_SPEED_VARIANCE = 50;
-const OUTPUT_DISPLAY_DELAY = 200;
-
 export default function Terminal() {
-  const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(true);
-  const [showOutput, setShowOutput] = useState(false);
-  const [completedCommands, setCompletedCommands] = useState<Command[]>([]);
+  const [lines, setLines] = useState<Line[]>(initialLines);
+  const [input, setInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
-  const moveToNextCommand = useCallback(() => {
-    setCompletedCommands(prev => [...prev, commands[currentCommandIndex]]);
-    setCurrentCommandIndex(prev => prev + 1);
-    setDisplayedText("");
-    setShowOutput(false);
-  }, [currentCommandIndex]);
+  const handleCommand = (cmd: string) => {
+    const trimmed = cmd.trim().toLowerCase();
+    const newLines: Line[] = [...lines, { type: "input", text: cmd }];
 
-  useEffect(() => {
-    if (currentCommandIndex >= commands.length) {
-      setIsTyping(false);
+    if (trimmed === "clear") {
+      setLines(initialLines);
+      setInput("");
       return;
     }
 
-    const currentCommand = commands[currentCommandIndex];
-    const fullText = currentCommand.input;
-
-    if (displayedText.length < fullText.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(fullText.slice(0, displayedText.length + 1));
-      }, TYPING_SPEED_MIN + Math.random() * TYPING_SPEED_VARIANCE);
-
-      return () => clearTimeout(timeout);
+    if (trimmed === "") {
+      setLines(newLines);
+      setInput("");
+      return;
     }
 
-    const showOutputTimeout = setTimeout(() => {
-      setShowOutput(true);
-      const nextCommandTimeout = setTimeout(() => {
-        moveToNextCommand();
-      }, currentCommand.delay || 800);
+    const output = commands[trimmed];
+    if (output) {
+      output.forEach((item) => {
+        if (typeof item === "string") {
+          newLines.push({ type: "output", text: item });
+        } else {
+          newLines.push({ type: "output", text: item.text, link: item.link });
+        }
+      });
+    } else {
+      newLines.push({ type: "output", text: `Command not found: ${trimmed}` });
+    }
 
-      return () => clearTimeout(nextCommandTimeout);
-    }, OUTPUT_DISPLAY_DELAY);
+    setLines(newLines);
+    setInput("");
+  };
 
-    return () => clearTimeout(showOutputTimeout);
-  }, [displayedText, currentCommandIndex, moveToNextCommand]);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleCommand(input);
+    }
+  };
+
+  const focusInput = () => inputRef.current?.focus();
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo(0, bodyRef.current.scrollHeight);
+  }, [lines]);
+
+  useEffect(() => {
+    focusInput();
+  }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-900 p-8">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-7xl ml-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-4xl"
       >
-        {/* Terminal Header */}
-        <div className="bg-zinc-900 border border-[#f11515] rounded-t-lg p-3 flex items-center gap-2">
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          </div>
-          <div className="text-sm text-zinc-400 ml-4 text-xl">
-            Quentin.Broyer@portfolio: ~
-          </div>
+        {/* Header */}
+        <div className="bg-neutral-800 rounded-t-lg px-4 py-3 flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-neutral-600" />
+          <div className="w-3 h-3 rounded-full bg-neutral-600" />
+          <div className="w-3 h-3 rounded-full bg-neutral-600" />
+          <span className="ml-4 text-neutral-400 text-sm">quentin.broyer@portfolio</span>
         </div>
 
-        {/* Terminal Body */}
-        <div className="bg-black border-x border-b border-[#00d4ff] rounded-b-lg p-6 h-[80vh] overflow-y-auto font-mono text-lg">
-          {/* Completed Commands */}
-          {completedCommands.map((cmd, index) => (
-            <div key={index} className="mb-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[#00ff88]">➜</span>
-                <span className="text-[#00d4ff]">~</span>
-                <span className="text-white">{cmd.input}</span>
-              </div>
-              {cmd.output.map((line, i) => (
-                <div key={i} className="text-zinc-300 ml-6">
-                  {line}
-                </div>
-              ))}
+        {/* Body */}
+        <div
+          ref={bodyRef}
+          onClick={focusInput}
+          className="bg-neutral-950 rounded-b-lg p-6 font-mono text-sm h-[70vh] overflow-y-auto cursor-text"
+        >
+          {lines.map((line, i) => (
+            <div key={i} className="mb-1">
+              {line.type === "input" ? (
+                <>
+                  <span className="text-neutral-500">$</span>
+                  <span className="text-white">{line.text}</span>
+                </>
+              ) : line.link ? (
+                <a
+                  href={line.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-neutral-400 hover:text-white underline"
+                >
+                  {line.text}
+                </a>
+              ) : (
+                <span className="text-neutral-400">{line.text}</span>
+              )}
             </div>
           ))}
 
-          {/* Current Command Being Typed */}
-          {currentCommandIndex < commands.length && (
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[#00ff88]">➜</span>
-                <span className="text-[#00d4ff]">~</span>
-                <span className="text-white">{displayedText}</span>
-                {isTyping && (
-                  <motion.span
-                    animate={{ opacity: [1, 0] }}
-                    transition={{
-                      duration: 0.7,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                    }}
-                    className="inline-block w-2 h-4 bg-white ml-1"
-                  />
-                )}
-              </div>
-
-              {/* Current Output */}
-              {showOutput && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {commands[currentCommandIndex].output.map((line, i) => (
-                    <div key={i} className="text-zinc-300 ml-6">
-                      {line}
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {/* Final Prompt */}
-          {currentCommandIndex >= commands.length && (
-            <div className="flex items-center gap-2 mt-4">
-              <span className="text-[#00ff88]">➜</span>
-              <span className="text-[#00d4ff]">~</span>
-              <motion.span
-                animate={{ opacity: [1, 0] }}
-                transition={{
-                  duration: 0.7,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }}
-                className="inline-block w-2 h-4 bg-white"
-              />
-            </div>
-          )}
-
-          {/* Scroll Indicator */}
-          {currentCommandIndex >= commands.length && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="mt-8 text-center"
-            >
-              <div className="text-zinc-500 mb-2">Scroll pour explorer</div>
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatType: "loop",
-                }}
-                className="text-[#00d4ff] text-2xl"
-              >
-                ↓
-              </motion.div>
-            </motion.div>
-          )}
+          {/* Input line */}
+          <div className="flex items-center">
+            <span className="text-neutral-500">$ </span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent text-white outline-none caret-white"
+              spellCheck={false}
+              autoComplete="off"
+            />
+          </div>
         </div>
       </motion.div>
     </div>

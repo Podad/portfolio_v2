@@ -3,68 +3,49 @@
 import { motion } from "framer-motion";
 
 const stats = [
-  { label: "Années d'XP", value: "5+" },
-  { label: "Projets", value: "50+" },
+  { label: "Years of XP", value: "5+" },
+  { label: "Projects", value: "50+" },
   { label: "Certifications", value: "8" },
   { label: "Technologies", value: "30+" },
-] as const;
-
-const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0 }
-};
-
-const statVariants = {
-  hidden: { opacity: 0, scale: 0.5 },
-  visible: { opacity: 1, scale: 1 }
-};
+];
 
 export default function About() {
   return (
-    <section id="about" className="min-h-screen flex items-center px-4 py-20">
-      <div className="max-w-6xl w-full ml-4">
+    <section className="min-h-screen flex items-center justify-center px-8 py-20 bg-neutral-900">
+      <div className="max-w-4xl w-full">
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          variants={containerVariants}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-6xl font-bold mb-12 text-[#00d4ff]">
-            À PROPOS
-          </h2>
+          <h2 className="text-3xl font-bold mb-8 text-white">About</h2>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <p className="text-lg md:text-xl leading-relaxed mb-6">
-                Passionné par l&apos;infrastructure cloud et l&apos;automatisation,
-                je conçois et déploie des solutions scalables et résilientes.
-              </p>
-              <p className="text-lg md:text-xl leading-relaxed text-zinc-400">
-                Mon expertise couvre l&apos;ensemble du cycle DevOps, de la
-                conteneurisation à l&apos;orchestration, en passant par le monitoring
-                et la sécurité.
-              </p>
-            </div>
+          <p className="text-neutral-400 text-lg mb-6 leading-relaxed">
+            Passionate about cloud infrastructure and automation, I design and
+            deploy scalable and resilient solutions.
+          </p>
+          <p className="text-neutral-500 mb-12 leading-relaxed">
+            My expertise covers the entire DevOps cycle, from containerization
+            to orchestration, including monitoring and security.
+          </p>
 
-            <div className="grid grid-cols-2 gap-6">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial="hidden"
-                  whileInView="visible"
-                  variants={statVariants}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="border border-[#00d4ff] p-6 hover:bg-[#00d4ff]/10 transition-all cursor-hover"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-[#00ff88] mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-zinc-400">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="border border-neutral-800 p-6 text-center"
+              >
+                <div className="text-2xl font-bold text-white mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-neutral-500">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>

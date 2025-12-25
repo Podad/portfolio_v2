@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Michroma } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const michroma = Michroma({
-  weight: "400",
-  variable: "--font-michroma",
+const inter = Inter({
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio | Cloud & DevOps Engineer",
-  description: "Portfolio professionnel d'un Cloud & DevOps Engineer",
+  title: "Quentin Broyer | Cloud & DevOps Engineer",
+  description: "Portfolio - Cloud & DevOps Engineer",
 };
 
 export default function RootLayout({
@@ -20,9 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body
-        className={`${michroma.variable} antialiased`}
-      >
+      <body className={`${inter.className} antialiased`}>
         {children}
       </body>
     </html>

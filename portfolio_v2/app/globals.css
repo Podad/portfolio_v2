@@ -35,9 +35,3 @@ body {
   background-color: var(--accent-cyan);
   color: var(--background);
 }
-
-@media (min-width: 768px) {
-  * {
-    cursor: none !important;
-  }
-}

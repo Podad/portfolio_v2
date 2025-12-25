@@ -2,109 +2,70 @@
 
 import { motion } from "framer-motion";
 
-const contactLinks = [
-  { id: "email", label: "Email", value: "quentin.broyer@exemple.com", href: "mailto:quentin.broyer@exemple.com" },
-  { id: "github", label: "GitHub", value: "github.com/quentinbroyer", href: "https://github.com/quentinbroyer" },
-  { id: "linkedin", label: "LinkedIn", value: "linkedin.com/in/quentinbroyer", href: "https://linkedin.com/in/quentinbroyer" },
-] as const;
-
-const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0 }
-};
-
-const linkVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0 }
-};
-
-const formVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1 }
-};
+const links = [
+  { label: "Email", value: "quentin.broyer@exemple.com", href: "mailto:quentin.broyer@exemple.com" },
+  { label: "GitHub", value: "github.com/quentinbroyer", href: "https://github.com/quentinbroyer" },
+  { label: "LinkedIn", value: "linkedin.com/in/quentinbroyer", href: "https://linkedin.com/in/quentinbroyer" },
+];
 
 export default function Contact() {
   return (
-    <section id="contact" className="min-h-screen flex items-center px-4 py-20">
-      <div className="max-w-4xl w-full ml-4">
+    <section className="min-h-screen flex items-center justify-center px-8 py-20 bg-neutral-950">
+      <div className="max-w-2xl w-full">
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          variants={containerVariants}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-6xl font-bold mb-12 text-[#00d4ff]">
-            CONTACT
-          </h2>
+          <h2 className="text-3xl font-bold mb-4 text-white">Contact</h2>
+          <p className="text-neutral-500 mb-8">
+            Interested in working together? Get in touch.
+          </p>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <p className="text-lg mb-8 text-zinc-400">
-                Intéressé par une collaboration ? N&apos;hésitez pas à me contacter.
-              </p>
+          <div className="space-y-3 mb-12">
+            {links.map((link, i) => (
+              <motion.a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                className="flex items-center gap-4 p-4 border border-neutral-800 hover:border-neutral-600 transition-colors"
+              >
+                <span className="text-xs text-neutral-600 w-16">{link.label}</span>
+                <span className="text-sm text-neutral-300">{link.value}</span>
+              </motion.a>
+            ))}
+          </div>
 
-              <div className="space-y-4">
-                {contactLinks.map((item, index) => (
-                  <motion.a
-                    key={item.id}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial="hidden"
-                    whileInView="visible"
-                    variants={linkVariants}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-4 p-4 border border-zinc-800 hover:border-[#00d4ff] transition-all cursor-hover group"
-                  >
-                    <span className="text-sm text-zinc-500 w-20">{item.label}</span>
-                    <span className="text-sm group-hover:text-[#00d4ff] transition-colors">
-                      {item.value}
-                    </span>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              variants={formVariants}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="border border-[#00d4ff] p-8 bg-[#00d4ff]/5"
-            >
-              <form className="space-y-6">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Nom"
-                    className="w-full bg-transparent border border-zinc-800 p-3 text-sm focus:border-[#00d4ff] focus:outline-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="w-full bg-transparent border border-zinc-800 p-3 text-sm focus:border-[#00d4ff] focus:outline-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <textarea
-                    placeholder="Message"
-                    rows={5}
-                    className="w-full bg-transparent border border-zinc-800 p-3 text-sm focus:border-[#00d4ff] focus:outline-none transition-colors resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-[#00d4ff] text-black font-bold py-3 px-6 hover:bg-[#00ff88] transition-colors cursor-hover"
-                >
-                  ENVOYER
-                </button>
-              </form>
-            </motion.div>
+          <div className="border border-neutral-800 p-6">
+            <form className="space-y-4">
+              <input
+                type="text"
+                placeholder="Name"
+                className="w-full bg-transparent border border-neutral-800 p-3 text-sm text-white placeholder-neutral-600 focus:border-neutral-600 focus:outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="w-full bg-transparent border border-neutral-800 p-3 text-sm text-white placeholder-neutral-600 focus:border-neutral-600 focus:outline-none"
+              />
+              <textarea
+                placeholder="Message"
+                rows={4}
+                className="w-full bg-transparent border border-neutral-800 p-3 text-sm text-white placeholder-neutral-600 focus:border-neutral-600 focus:outline-none resize-none"
+              />
+              <button
+                type="submit"
+                className="w-full bg-white text-neutral-900 font-medium py-3 hover:bg-neutral-200 transition-colors"
+              >
+                Send
+              </button>
+            </form>
           </div>
         </motion.div>
       </div>
