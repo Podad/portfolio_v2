@@ -6,6 +6,19 @@ import { motion } from "framer-motion";
 type Line = { type: "input" | "output"; text: string; link?: string };
 type CommandOutput = string | { text: string; link: string };
 
+const train = [
+  "  ___________                ________        ====      ",
+  " |_________|__=====I_I__/        \\________|  |_ D_  ",
+  "   |___ ___|=        |   | /________/H   |  ---(_)|   ",
+  "   ||_| |_||         |   |     |  |  H  |  |     \\   ",
+  "   | [___] |--------------------__|  H  |  |      |  ",
+  "   |       |_______/~[][]/_______|__H___|________ |  ",
+  " __|=======|   D  [] [][] I_____I-----------|   | \\|  ",
+  " __|___________Y____ /~~\\  /~~\\  /~~\\  /~~-=| o |= \\__",
+  "        /___/~\\_____||    ||    ||    ||    =|___|=-| ",
+  "            \\_/      \\_O=====O=====O=====O/      \\_/  ",
+];
+
 const commands: Record<string, CommandOutput[]> = {
   help: [
     "Available commands:",
@@ -17,21 +30,20 @@ const commands: Record<string, CommandOutput[]> = {
   ],
   whoami: ["Quentin Broyer — Cloud & DevOps Engineer"],
   skills: [
-    "Cloud:      AWS, Azure, GCP, OVH",
+    "Cloud:      AWS, Azure, OVH",
     "DevOps:     Docker, Kubernetes, GitLab CI, ArgoCD",
-    "IaC:        Terraform, Ansible, Pulumi",
-    "Monitoring: Prometheus, Grafana, ELK Stack",
+    "IaC:        Terraform, Ansible",
+    "Monitoring: Prometheus, Grafana",
   ],
   projects: [
-    "1. Multi-Cloud Infrastructure - Terraform, AWS, Azure, GCP",
+    "1. Multi-Cloud Infrastructure - Terraform, AWS, Azure, OVH",
     "2. CI/CD Pipeline - GitLab CI, Docker, Kubernetes",
-    "3. Cloud Migration - Zero-downtime migration",
-    "4. K8s Production Cluster - Helm, Istio, Prometheus",
+    "3. K8s Production Cluster - Helm, ArgpCD, Prometheus, Nginx",
   ],
   contact: [
     { text: "Email:    quentin.broyer@exemple.com", link: "mailto:quentin.broyer@exemple.com" },
-    { text: "GitHub:   github.com/quentinbroyer", link: "https://github.com/quentinbroyer" },
-    { text: "LinkedIn: linkedin.com/in/quentinbroyer", link: "https://linkedin.com/in/quentinbroyer" },
+    { text: "GitHub:   github.com/quentinbroyer", link: "https://github.com/podad" },
+    { text: "LinkedIn: linkedin.com/in/quentinbroyer", link: "https://linkedin.com/in/ToDo" },
   ],
 };
 
@@ -42,6 +54,7 @@ const initialLines: Line[] = [
 export default function Terminal() {
   const [lines, setLines] = useState<Line[]>(initialLines);
   const [input, setInput] = useState("");
+  const [showTrain, setShowTrain] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +65,14 @@ export default function Terminal() {
     if (trimmed === "clear") {
       setLines(initialLines);
       setInput("");
+      return;
+    }
+
+    if (trimmed === "sl") {
+      setLines(newLines);
+      setInput("");
+      setShowTrain(true);
+      setTimeout(() => setShowTrain(false), 4000);
       return;
     }
 
@@ -114,7 +135,7 @@ export default function Terminal() {
         <div
           ref={bodyRef}
           onClick={focusInput}
-          className="bg-neutral-950 rounded-b-lg p-6 font-mono text-sm h-[70vh] overflow-y-auto cursor-text"
+          className="bg-neutral-950 rounded-b-lg p-6 font-mono text-sm h-[70vh] overflow-y-auto overflow-x-hidden cursor-text relative"
         >
           {lines.map((line, i) => (
             <div key={i} className="mb-1">
@@ -138,20 +159,39 @@ export default function Terminal() {
             </div>
           ))}
 
+          {/* Train Easter Egg */}
+          {showTrain && (
+            <div
+              className="absolute inset-0 flex items-center pointer-events-none overflow-hidden"
+              style={{ background: "rgba(10, 10, 10, 0.95)" }}
+            >
+              <motion.pre
+                initial={{ x: "-100%" }}
+                animate={{ x: "100vw" }}
+                transition={{ duration: 3.5, ease: "linear" }}
+                className="text-white whitespace-pre text-xs leading-tight"
+              >
+                {train.join("\n")}
+              </motion.pre>
+            </div>
+          )}
+
           {/* Input line */}
-          <div className="flex items-center">
-            <span className="text-neutral-500">$ </span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-white outline-none caret-white"
-              spellCheck={false}
-              autoComplete="off"
-            />
-          </div>
+          {!showTrain && (
+            <div className="flex items-center">
+              <span className="text-neutral-500">$ </span>
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-transparent text-white outline-none caret-white"
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
